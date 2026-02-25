@@ -1,0 +1,13 @@
+{
+  "name": "qr-ticket-scanner",
+  "version": "1.0.0",
+  "description": "Sistema de verificación de tickets QR para The Terrace",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build needed for static site'"
+  },
+  "dependencies": {
+    "googleapis": "^128.0.0"
+  },
+  "devDependencies": {}
+}

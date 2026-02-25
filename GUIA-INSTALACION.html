@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Instalación - Verificador QR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .step {
+            background: #f9fafb;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        .step h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .step ol, .step ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        .step li {
+            margin-bottom: 8px;
+        }
+        .code {
+            background: #1e293b;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .warning {
+            background: #fef3c7;
+            border-left: 5px solid #f59e0b;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d1fae5;
+            border-left: 5px solid #10b981;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+        }
+        .checklist {
+            list-style: none;
+            margin-left: 0 !important;
+        }
+        .checklist li:before {
+            content: "☐ ";
+            color: #667eea;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎫 Guía de Instalación</h1>
+            <p>Sistema Verificador de Tickets QR</p>
+        </div>
+
+        <div class="content">
+            <div class="step">
+                <h2><span class="step-number">1</span>Preparar Google Sheets</h2>
+                <ol>
+                    <li><strong>Abre tu Google Sheet</strong> con los datos de tickets</li>
+                    <li><strong>Agrega DOS columnas nuevas</strong> al final (después de la columna "qr_code_compra"):
+                        <ul>
+                            <li>Columna T: <code>ticket_usado</code></li>
+                            <li>Columna U: <code>fecha_uso</code></li>
+                        </ul>
+                    </li>
+                    <li><strong>Haz la hoja PÚBLICA</strong>:
+                        <ul>
+                            <li>Click en botón "Compartir" (esquina superior derecha)</li>
+                            <li>Click en "Cambiar a cualquiera con el enlace"</li>
+                            <li>Asegúrate que diga <strong>"Lector"</strong> (NO Editor)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Copia el SPREADSHEET_ID</strong>:
+                        <div class="code">https://docs.google.com/spreadsheets/d/<strong>ESTE_ES_TU_ID</strong>/edit</div>
+                        Guárdalo en un lugar seguro
+                    </li>
+                </ol>
+            </div>
+
+            <div class="step">
+                <h2><span class="step-number">2</span>Crear Google API Key</h2>
+                <ol>
+                    <li>Ve a: <a href="https://console.cloud.google.com/" class="link" target="_blank">Google Cloud Console</a></li>
+                    <li>Click en "Seleccionar proyecto" → "Nuevo proyecto"</li>
+                    <li>Nombre: "Verificador-Tickets" → Click "Crear"</li>
+                    <li>Espera 10 segundos y selecciona el proyecto</li>
+                    <li>Menú lateral: <strong>"APIs y servicios"</strong> → <strong>"Biblioteca"</strong></li>
+                    <li>Busca: <strong>"Google Sheets API"</strong> → Click → <strong>"Habilitar"</strong></li>
+                    <li>Ve a <strong>"Credenciales"</strong> (menú lateral)</li>
+                    <li>Click <strong>"Crear credenciales"</strong> → <strong>"Clave de API"</strong></li>
+                    <li><strong>¡MUY IMPORTANTE!</strong> Click en "Restringir clave":
+                        <div class="warning">
+                            <strong>⚠️ Configuración de Seguridad:</strong>
+                            <table>
+                                <tr>
+                                    <th>Campo</th>
+                                    <th>Valor</th>
+                                </tr>
+                                <tr>
+                                    <td>Nombre</td>
+                                    <td>API Key Verificador</td>
+                                </tr>
+                                <tr>
+                                    <td>Restricciones de aplicación</td>
+                                    <td>Referentes HTTP (sitios web)</td>
+                                </tr>
+                                <tr>
+                                    <td>Referentes</td>
+                                    <td><code>*.vercel.app/*</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Restricciones de API</td>
+                                    <td>Solo "Google Sheets API"</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </li>
+                    <li>Click <strong>"Guardar"</strong></li>
+                    <li><strong>Copia tu API Key</strong> (la necesitarás en Vercel)</li>
+                </ol>
+            </div>
+
+            <div class="step">
+                <h2><span class="step-number">3</span>Subir Código a GitHub</h2>
+                <ol>
+                    <li>Ve a: <a href="https://github.com" class="link" target="_blank">GitHub.com</a></li>
+                    <li>Crea una cuenta si no tienes (es gratis)</li>
+                    <li>Click en <strong>"New"</strong> (botón verde)</li>
+                    <li>Nombre del repositorio: <code>verificador-tickets-qr</code></li>
+                    <li>Selecciona <strong>"Public"</strong></li>
+                    <li>NO marques ningún checkbox</li>
+                    <li>Click <strong>"Create repository"</strong></li>
+                    <li><strong>Sube estos archivos</strong> (arrástralos a la página):
+                        <ul class="checklist">
+                            <li>index.html</li>
+                            <li>package.json</li>
+                            <li>vercel.json</li>
+                            <li>.gitignore</li>
+                            <li>api/verify-ticket.js (crea la carpeta "api" primero)</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="step">
+                <h2><span class="step-number">4</span>Desplegar en Vercel</h2>
+                <ol>
+                    <li>Ve a: <a href="https://vercel.com" class="link" target="_blank">Vercel.com</a></li>
+                    <li>Click <strong>"Sign Up"</strong> → <strong>"Continue with GitHub"</strong></li>
+                    <li>Autoriza a Vercel</li>
+                    <li>Click <strong>"New Project"</strong></li>
+                    <li>Busca tu repositorio: <code>verificador-tickets-qr</code></li>
+                    <li>Click <strong>"Import"</strong></li>
+                    <li><strong>Agrega Variables de Entorno</strong>:
+                        <div class="warning">
+                            <strong>🔐 Variables de Entorno (Environment Variables):</strong>
+                            <table>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Value</th>
+                                </tr>
+                                <tr>
+                                    <td><code>SPREADSHEET_ID</code></td>
+                                    <td>Tu ID del Paso 1</td>
+                                </tr>
+                                <tr>
+                                    <td><code>GOOGLE_API_KEY</code></td>
+                                    <td>Tu API Key del Paso 2</td>
+                                </tr>
+                                <tr>
+                                    <td><code>SHEET_NAME</code></td>
+                                    <td>Hoja 1 (o el nombre de tu pestaña)</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </li>
+                    <li>Click <strong>"Deploy"</strong></li>
+                    <li>Espera 1-2 minutos ⏰</li>
+                </ol>
+                
+                <div class="success">
+                    <strong>🎉 ¡Listo!</strong><br>
+                    Tu app estará disponible en: <code>https://tu-proyecto.vercel.app</code>
+                </div>
+            </div>
+
+            <div class="step">
+                <h2><span class="step-number">5</span>Cómo Usar</h2>
+                <h3>📱 Para el Portero:</h3>
+                <ol>
+                    <li>Abre la app en el móvil: <code>https://tu-proyecto.vercel.app</code></li>
+                    <li>Click en "Iniciar Escáner"</li>
+                    <li>Permite acceso a la cámara</li>
+                    <li>Apunta al código QR del ticket</li>
+                    <li>Resultado instantáneo:
+                        <ul>
+                            <li>✅ <strong style="color: #10b981;">Verde</strong> = Ticket válido (se marca como usado)</li>
+                            <li>⚠️ <strong style="color: #f59e0b;">Amarillo</strong> = Ya fue usado antes</li>
+                            <li>❌ <strong style="color: #ef4444;">Rojo</strong> = Inválido o no pagado</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="step">
+                <h2>🐛 Problemas Comunes</h2>
+                <table>
+                    <tr>
+                        <th>Problema</th>
+                        <th>Solución</th>
+                    </tr>
+                    <tr>
+                        <td>"Error de conexión"</td>
+                        <td>Verifica las variables de entorno en Vercel</td>
+                    </tr>
+                    <tr>
+                        <td>"Ticket no encontrado"</td>
+                        <td>Asegúrate que el código QR esté en la columna S</td>
+                    </tr>
+                    <tr>
+                        <td>"Error de cámara"</td>
+                        <td>La app debe usar HTTPS (Vercel lo da automáticamente)</td>
+                    </tr>
+                    <tr>
+                        <td>"403 Forbidden"</td>
+                        <td>Revisa restricciones de la API Key en Google Cloud</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="success" style="text-align: center; margin-top: 30px;">
+                <h3>💰 Costo Total: $0</h3>
+                <p>Vercel Plan Gratuito + Google Sheets API Gratuita</p>
+                <p style="margin-top: 10px;">✨ Suficiente para eventos de hasta 1000 personas</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
