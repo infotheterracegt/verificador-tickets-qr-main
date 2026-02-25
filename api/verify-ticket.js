@@ -2,7 +2,6 @@ const { google } = require('googleapis');
 
 // Configuración
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const SHEET_NAME = process.env.SHEET_NAME || 'Hoja 1';
 
 const COLUMNS = {
@@ -29,6 +28,14 @@ const COLUMNS = {
     FECHA_USO: 9
 };
 
+function getAuthClient() {
+    const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+    return new google.auth.GoogleAuth({
+        credentials,
+        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+}
+
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -51,7 +58,7 @@ module.exports = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Código QR requerido' });
         }
 
-        if (!SPREADSHEET_ID || !GOOGLE_API_KEY) {
+        if (!SPREADSHEET_ID || !process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
             return res.status(500).json({
                 success: false,
                 message: 'Error de configuración del servidor',
@@ -59,8 +66,10 @@ module.exports = async (req, res) => {
             });
         }
 
-        const sheets = google.sheets({ version: 'v4', auth: GOOGLE_API_KEY });
+        const auth = getAuthClient();
+        const sheets = google.sheets({ version: 'v4', auth });
 
+        // Leer todos los datos de la hoja
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
             range: `${SHEET_NAME}!A:U`,
@@ -72,6 +81,7 @@ module.exports = async (req, res) => {
             return res.status(404).json({ success: false, message: 'No hay datos en la hoja' });
         }
 
+        // Buscar el ticket por QR code (saltar header)
         let ticketRow = null;
         let rowIndex = -1;
 
@@ -104,6 +114,7 @@ module.exports = async (req, res) => {
             });
         }
 
+        // Marcar ticket como usado
         const now = new Date();
         const fechaUso = now.toLocaleString('es-MX', {
             timeZone: 'America/Mexico_City',
