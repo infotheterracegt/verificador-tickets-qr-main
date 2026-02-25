@@ -13,10 +13,10 @@ const COLUMNS = {
     NOMBRE: 3,
     EMAIL: 4,
     EVENTO: 5,
-    FASE: 6,
+    FASE: 18, // Cambio por QR_CODE_COMPRA
     CANTIDAD_TICKETS: 7,
-    PRECIO_UNITARIO: 8,
-    TOTAL_PAGADO: 9,
+    PRECIO_UNITARIO: 19,// Cambio por TICKET_USADO
+    TOTAL_PAGADO: 20,// Cambio por FECHA_USO
     FECHA_COMPRA: 10,
     PDF_URL: 11,
     TRANSACTION_ID: 12,
@@ -25,9 +25,9 @@ const COLUMNS = {
     SERVICE_FEE: 15,
     SUBTOTAL: 16,
     TELEFONO: 17,
-    QR_CODE_COMPRA: 18,
-    TICKET_USADO: 19,
-    FECHA_USO: 20
+    QR_CODE_COMPRA: 6,
+    TICKET_USADO: 8,
+    FECHA_USO: 9
 };
 
 module.exports = async (req, res) => {
@@ -126,13 +126,13 @@ module.exports = async (req, res) => {
         };
 
         // Verificar que el pago esté completado
-        if (ticketData.status_pago !== 'pagado') {
-            return res.status(400).json({ 
-                success: false, 
-                message: `Ticket no pagado. Estado: ${ticketData.status_pago}`,
-                ticket: ticketData
-            });
-        }
+        // if (ticketData.status_pago !== 'pagado') {
+        //     return res.status(400).json({ 
+        //         success: false, 
+        //         message: `Ticket no pagado. Estado: ${ticketData.status_pago}`,
+        //         ticket: ticketData
+        //     });
+        // }
 
         // Si ya está usado, devolver info pero no actualizarlo
         if (alreadyUsed) {
@@ -158,7 +158,7 @@ module.exports = async (req, res) => {
 
         const updateResponse = await sheets.spreadsheets.values.update({
             spreadsheetId: SPREADSHEET_ID,
-            range: `${SHEET_NAME}!T${rowIndex}:U${rowIndex}`, // Columnas T y U
+            range: `${SHEET_NAME}!I${rowIndex}:J${rowIndex}`, // Columnas I y J
             valueInputOption: 'RAW',
             resource: {
                 values: [['SI', fechaUso]]
