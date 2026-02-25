@@ -112,15 +112,15 @@ module.exports = async (req, res) => {
 
         // Preparar datos del ticket
         const ticketData = {
-            order_id: ticketRow[COLUMNS.ORDER_ID],
-            nombre: ticketRow[COLUMNS.NOMBRE],
-            email: ticketRow[COLUMNS.EMAIL],
-            evento: ticketRow[COLUMNS.EVENTO],
-            fase: ticketRow[COLUMNS.FASE],
-            cantidad_tickets: ticketRow[COLUMNS.CANTIDAD_TICKETS],
-            total_pagado: ticketRow[COLUMNS.TOTAL_PAGADO],
-            fecha_compra: ticketRow[COLUMNS.FECHA_COMPRA],
-            status_pago: ticketRow[COLUMNS.STATUS_PAGO],
+            // order_id: ticketRow[COLUMNS.ORDER_ID],
+            // nombre: ticketRow[COLUMNS.NOMBRE],
+            // email: ticketRow[COLUMNS.EMAIL],
+            // evento: ticketRow[COLUMNS.EVENTO],
+            // fase: ticketRow[COLUMNS.FASE],
+            // cantidad_tickets: ticketRow[COLUMNS.CANTIDAD_TICKETS],
+            // total_pagado: ticketRow[COLUMNS.TOTAL_PAGADO],
+            // fecha_compra: ticketRow[COLUMNS.FECHA_COMPRA],
+            // status_pago: ticketRow[COLUMNS.STATUS_PAGO],
             qr_code: qrCode,
             fecha_uso: ticketRow[COLUMNS.FECHA_USO] || null
         };
