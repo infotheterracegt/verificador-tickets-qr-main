@@ -69,7 +69,6 @@ module.exports = async (req, res) => {
         const auth = getAuthClient();
         const sheets = google.sheets({ version: 'v4', auth });
 
-        // Leer todos los datos de la hoja
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
             range: `${SHEET_NAME}!A:U`,
@@ -81,7 +80,6 @@ module.exports = async (req, res) => {
             return res.status(404).json({ success: false, message: 'No hay datos en la hoja' });
         }
 
-        // Buscar el ticket por QR code (saltar header)
         let ticketRow = null;
         let rowIndex = -1;
 
@@ -114,7 +112,6 @@ module.exports = async (req, res) => {
             });
         }
 
-        // Marcar ticket como usado
         const now = new Date();
         const fechaUso = now.toLocaleString('es-MX', {
             timeZone: 'America/Mexico_City',
