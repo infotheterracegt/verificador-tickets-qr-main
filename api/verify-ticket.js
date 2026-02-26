@@ -85,7 +85,7 @@ module.exports = async (req, res) => {
         }
 
         const ticketUsado = ticketRow[COLUMNS.TICKET_USADO];
-        const alreadyUsed = ticketUsado === 'SI' || ticketUsado === 'si' || ticketUsado === true;
+        const alreadyUsed = ticketUsado === 'USADO' || ticketUsado === 'usado' || ticketUsado === true;
 
         const ticketData = {
             qr_code: qrCode,
@@ -117,7 +117,7 @@ module.exports = async (req, res) => {
             spreadsheetId: SPREADSHEET_ID,
             range: `${SHEET_NAME}!I${rowIndex}:J${rowIndex}`,
             valueInputOption: 'RAW',
-            resource: { values: [['SI', fechaUso]] }
+            resource: { values: [['USADO', fechaUso]] }
         });
 
         ticketData.fecha_uso = fechaUso;
