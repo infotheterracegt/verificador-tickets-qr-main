@@ -100,6 +100,7 @@ module.exports = async (req, res) => {
 
         const ticketData = {
             qr_code: qrCode,
+            nombre: ticketRow[COLUMNS.NOMBRE] || null,
             fecha_uso: ticketRow[COLUMNS.FECHA_USO] || null
         };
 
@@ -127,7 +128,7 @@ module.exports = async (req, res) => {
             spreadsheetId: SPREADSHEET_ID,
             range: `${SHEET_NAME}!I${rowIndex}:J${rowIndex}`,
             valueInputOption: 'RAW',
-            resource: { values: [['INGRESADO', fechaUso]] }
+            resource: { values: [['SI', fechaUso]] }
         });
 
         ticketData.fecha_uso = fechaUso;

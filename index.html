@@ -77,7 +77,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://cdn.shopify.com/s/files/1/0655/3544/3015/files/the_terrace_logo.png?v=1768212138" alt="The Terrace Logo" class="logo">
+            <img src="https://cdn.shopify.com/s/files/1/0962/9093/1012/files/87D86B96-046E-47F0-921B-B1E0E2A172A6.png?v=1769979310" alt="The Terrace Logo" class="logo">
             <h1>Verificador de Tickets</h1>
         </div>
         <div class="scanner-box">
@@ -236,6 +236,10 @@
                     <div class="qr-code-display">
                         <div class="qr-code-label">Código QR</div>
                         <div class="qr-code-value">${ticket.qr_code || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Nombre</span>
+                        <span class="detail-value">${ticket.nombre || 'N/A'}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Fecha de Uso</span>
