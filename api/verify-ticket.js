@@ -127,7 +127,7 @@ module.exports = async (req, res) => {
             spreadsheetId: SPREADSHEET_ID,
             range: `${SHEET_NAME}!I${rowIndex}:J${rowIndex}`,
             valueInputOption: 'RAW',
-            resource: { values: [['SI', fechaUso]] }
+            resource: { values: [['INGRESADO', fechaUso]] }
         });
 
         ticketData.fecha_uso = fechaUso;
