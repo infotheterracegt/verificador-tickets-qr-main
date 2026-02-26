@@ -5,25 +5,14 @@ const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 const SHEET_NAME = process.env.SHEET_NAME || 'Hoja 1';
 
 const COLUMNS = {
-    ORDER_ID: 0,
-    PAGGO_PAYMENT_ID: 1,
-    STATUS_PAGO: 2,
-    NOMBRE: 3,
-    EMAIL: 4,
-    EVENTO: 5,
-    FASE: 18,
-    CANTIDAD_TICKETS: 7,
-    PRECIO_UNITARIO: 19,
-    TOTAL_PAGADO: 20,
-    FECHA_COMPRA: 10,
-    PDF_URL: 11,
-    TRANSACTION_ID: 12,
-    CODIGO_DESCUENTO: 13,
-    DESCUENTO_APLICADO: 14,
-    SERVICE_FEE: 15,
-    SUBTOTAL: 16,
-    TELEFONO: 17,
+    TICKET_ID: 0,
+    ORDER_ID: 1,
+    EVENTO: 2,
+    FASE: 3,
+    NOMBRE: 4,
+    EMAIL: 5,
     QR_CODE_COMPRA: 6,
+    CODIGO_DESCUENTO: 7,
     TICKET_USADO: 8,
     FECHA_USO: 9
 };
