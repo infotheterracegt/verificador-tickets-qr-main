@@ -2,7 +2,7 @@ const { google } = require('googleapis');
 
 // Configuración
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
-const SHEET_NAME = process.env.SHEET_NAME || 'Hoja 1';
+const SHEET_NAME = process.env.SHEET_NAME || 'Entradas confirmadas';
 
 const COLUMNS = {
     TICKET_ID: 0,
