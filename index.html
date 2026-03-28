@@ -115,6 +115,9 @@
     <script>
         let html5QrCode;
         let scanning = false;
+        let pollingTimer = null;
+        const POLLING_INTERVAL = 60000;
+
         let stats = {
             verified: 0,
             rejected: 0
@@ -144,8 +147,32 @@
             }
         }
 
+        function startControlPolling() {
+            if (pollingTimer) return;
+
+            pollingTimer = setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    loadControlCounts();
+                }
+            }, POLLING_INTERVAL);
+        }
+
+        function stopControlPolling() {
+            if (pollingTimer) {
+                clearInterval(pollingTimer);
+                pollingTimer = null;
+            }
+        }
+
         updateStats();
         loadControlCounts();
+        startControlPolling();
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                loadControlCounts();
+            }
+        });
 
         const startBtn = document.getElementById('start-scan');
         const scanAgainBtn = document.getElementById('scan-again');
