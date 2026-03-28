@@ -3,6 +3,7 @@ const { google } = require('googleapis');
 // Configuración
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 const SHEET_NAME = process.env.SHEET_NAME || 'Entradas confirmadas';
+const CONTROL_SHEET_NAME = process.env.CONTROL_SHEET_NAME || 'CONTROL';
 
 const COLUMNS = {
     TICKET_ID: 0,
@@ -25,15 +26,77 @@ function getAuthClient() {
     });
 }
 
+async function getControlCounts(sheets) {
+    const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `${CONTROL_SHEET_NAME}!A1:B2`,
+    });
+
+    const rows = response.data.values || [];
+    const countsRow = rows[1] || [];
+    const satisfactory = parseInt(countsRow[0], 10);
+    const unsatisfactory = parseInt(countsRow[1], 10);
+
+    return {
+        satisfactorio: Number.isNaN(satisfactory) ? 0 : satisfactory,
+        insatisfactorio: Number.isNaN(unsatisfactory) ? 0 : unsatisfactory,
+    };
+}
+
+async function updateControlCounts(sheets, isValid) {
+    const counts = await getControlCounts(sheets);
+
+    const updatedCounts = {
+        satisfactorio: counts.satisfactorio + (isValid ? 1 : 0),
+        insatisfactorio: counts.insatisfactorio + (isValid ? 0 : 1),
+    };
+
+    await sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `${CONTROL_SHEET_NAME}!A2:B2`,
+        valueInputOption: 'RAW',
+        resource: { values: [[updatedCounts.satisfactorio, updatedCounts.insatisfactorio]] },
+    });
+
+    return updatedCounts;
+}
+
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS, GET');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    console.log('Received request:', req.method, req.url);
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
+    }
+
+    if (!SPREADSHEET_ID || !process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
+        return res.status(500).json({
+            success: false,
+            message: 'Error de configuración del servidor',
+            error: 'Variables de entorno no configuradas',
+        });
+    }
+
+    const auth = getAuthClient();
+    const sheets = google.sheets({ version: 'v4', auth });
+
+    if (req.method === 'GET') {
+        try {
+            const counts = await getControlCounts(sheets);
+            return res.status(200).json({
+                success: true,
+                message: 'Contadores cargados correctamente',
+                counts,
+            });
+        } catch (error) {
+            console.error('Error leyendo contadores:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Error al leer los contadores de control',
+                error: error.message,
+            });
+        }
     }
 
     if (req.method !== 'POST') {
@@ -47,17 +110,6 @@ module.exports = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Código QR requerido' });
         }
 
-        if (!SPREADSHEET_ID || !process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
-            return res.status(500).json({
-                success: false,
-                message: 'Error de configuración del servidor',
-                error: 'Variables de entorno no configuradas',
-            });
-        }
-
-        const auth = getAuthClient();
-        const sheets = google.sheets({ version: 'v4', auth });
-
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: SPREADSHEET_ID,
             range: `${SHEET_NAME}!A:U`,
@@ -66,7 +118,12 @@ module.exports = async (req, res) => {
         const rows = response.data.values;
 
         if (!rows || rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'No hay datos en la hoja' });
+            const counts = await updateControlCounts(sheets, false);
+            return res.status(404).json({
+                success: false,
+                message: 'No hay datos en la hoja',
+                counts,
+            });
         }
 
         let ticketRow = null;
@@ -81,7 +138,12 @@ module.exports = async (req, res) => {
         }
 
         if (!ticketRow) {
-            return res.status(404).json({ success: false, message: 'Ticket no encontrado. Verifica el código QR.' });
+            const counts = await updateControlCounts(sheets, false);
+            return res.status(404).json({
+                success: false,
+                message: 'Ticket no encontrado. Verifica el código QR.',
+                counts,
+            });
         }
 
         const ticketUsado = ticketRow[COLUMNS.TICKET_USADO];
@@ -94,11 +156,13 @@ module.exports = async (req, res) => {
         };
 
         if (alreadyUsed) {
+            const counts = await updateControlCounts(sheets, false);
             return res.status(200).json({
                 success: true,
                 alreadyUsed: true,
                 message: 'Este ticket ya fue utilizado anteriormente',
                 ticket: ticketData,
+                counts,
             });
         }
 
@@ -113,7 +177,7 @@ module.exports = async (req, res) => {
             second: '2-digit'
         });
 
-        const updateResponse = await sheets.spreadsheets.values.update({
+        await sheets.spreadsheets.values.update({
             spreadsheetId: SPREADSHEET_ID,
             range: `${SHEET_NAME}!I${rowIndex}:J${rowIndex}`,
             valueInputOption: 'RAW',
@@ -121,13 +185,14 @@ module.exports = async (req, res) => {
         });
 
         ticketData.fecha_uso = fechaUso;
+        const counts = await updateControlCounts(sheets, true);
 
         return res.status(200).json({
             success: true,
             alreadyUsed: false,
             message: 'Ticket verificado y marcado como usado',
             ticket: ticketData,
-            updated: updateResponse.data.updatedCells === 2,
+            counts,
         });
 
     } catch (error) {
